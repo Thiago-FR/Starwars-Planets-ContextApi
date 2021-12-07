@@ -17,16 +17,16 @@ function Form() {
   useEffect(() => {
     const arrSelect = document.getElementById('select-filter');
     setcomparisonFilter({
-      column: arrSelect.firstChild.value,
+      column: arrSelect.firstChild ? arrSelect.firstChild.value : '',
       comparison: 'maior que',
       value: 0 });
   }, [optionsValue]);
 
   useEffect(() => {
     const { filterByNumericValues } = filterByValues;
-    filterByNumericValues.forEach(({ column }) => {
-      setOptionsValue([...optionsValue, column]);
-    });
+    const resultFilterd = [];
+    filterByNumericValues.forEach(({ column }) => resultFilterd.push(column));
+    setOptionsValue(resultFilterd);
   }, [filterByValues]);
 
   return (

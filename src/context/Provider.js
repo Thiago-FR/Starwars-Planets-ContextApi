@@ -29,21 +29,21 @@ function Provider({ children }) {
   }, [filterByName]);
 
   useEffect(() => {
-    if (data.length !== 0) {
-      const { filterByNumericValues } = filterByValues;
+    const { filterByNumericValues } = filterByValues;
+    if (data.length !== 0 && filterByNumericValues.length > 0) {
       const {
         column,
         comparison,
         value } = filterByNumericValues[filterByNumericValues.length - 1];
       switch (comparison) {
       case 'maior que':
-        return setFilteredData(data
+        return setFilteredData(filteredData
           .filter((title) => Number(title[column]) > Number(value)));
       case 'menor que':
-        return setFilteredData(data
+        return setFilteredData(filteredData
           .filter((title) => Number(title[column]) < Number(value)));
       case 'igual a':
-        return setFilteredData(data
+        return setFilteredData(filteredData
           .filter((title) => Number(title[column]) === Number(value)));
       default:
         return console.log('nai');
@@ -62,6 +62,30 @@ function Provider({ children }) {
     });
   };
 
+  const handleClickReverse = (columnReverse, comparisonReverse, valueReverse) => {
+    const { filterByNumericValues } = filterByValues;
+    const resultFiltered = filterByNumericValues
+      .filter(({ column }) => column !== columnReverse);
+    setFilterByNumericValues({
+      filterByNumericValues: resultFiltered,
+    });
+    switch (comparisonReverse) {
+    case 'maior que':
+      return setFilteredData([...filteredData, ...data
+        .filter((title) => Number(title[columnReverse]) <= Number(valueReverse)
+        || title[columnReverse] === 'unknown')]);
+    case 'menor que':
+      return setFilteredData([...filteredData, ...data
+        .filter((title) => Number(title[columnReverse]) >= Number(valueReverse)
+        || title[columnReverse] === 'unknown')]);
+    case 'igual a':
+      return setFilteredData([...filteredData, ...data
+        .filter((title) => Number(title[columnReverse]) === Number(valueReverse))]);
+    default:
+      return console.log('nai');
+    }
+  };
+
   const context = {
     data,
     dataError,
@@ -69,6 +93,7 @@ function Provider({ children }) {
     filterByValues,
     handleInput,
     handleClick,
+    handleClickReverse,
   };
 
   return (
