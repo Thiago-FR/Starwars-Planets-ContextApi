@@ -5,8 +5,11 @@ import StarWarsContextApi from '../services/StarWarsContextApi';
 
 function Provider({ children }) {
   const [data, setData] = useState([]);
-  const [filterByName, setFilterByName] = useState({ filterByName: { name: '' } });
   const [filteredData, setFilteredData] = useState([]);
+  const [filterByName, setFilterByName] = useState({ filterByName: { name: '' } });
+  const [filterByNumericValues, setFilterByNumericValues] = useState({
+    filterByNumericValues: [{ column: '', comparison: '', value: 0 }],
+  });
   const [dataError, setDataError] = useState('');
 
   useEffect(() => {
@@ -25,8 +28,34 @@ function Provider({ children }) {
     setFilteredData(result);
   }, [filterByName]);
 
+  useEffect(() => {
+    const {
+      filterByNumericValues: [{ column, comparison, value }] } = filterByNumericValues;
+    if (data.length !== 0) {
+      switch (comparison) {
+      case 'maior que':
+        return setFilteredData(data
+          .filter((title) => Number(title[column]) > Number(value)));
+      case 'menor que':
+        return setFilteredData(data
+          .filter((title) => Number(title[column]) < Number(value)));
+      case 'igual a':
+        return setFilteredData(data
+          .filter((title) => Number(title[column]) === Number(value)));
+      default:
+        return console.log('nai');
+      }
+    }
+  }, [filterByNumericValues]);
+
   const handleInput = (value) => {
     setFilterByName({ filterByName: { name: value } });
+  };
+
+  const handleClick = ({ column, comparison, value }) => {
+    setFilterByNumericValues({
+      filterByNumericValues: [{ column, comparison, value }],
+    });
   };
 
   const context = {
@@ -34,6 +63,7 @@ function Provider({ children }) {
     dataError,
     filteredData,
     handleInput,
+    handleClick,
   };
 
   return (
