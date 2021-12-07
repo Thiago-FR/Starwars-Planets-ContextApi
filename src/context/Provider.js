@@ -7,8 +7,8 @@ function Provider({ children }) {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [filterByName, setFilterByName] = useState({ filterByName: { name: '' } });
-  const [filterByNumericValues, setFilterByNumericValues] = useState({
-    filterByNumericValues: [{ column: '', comparison: '', value: 0 }],
+  const [filterByValues, setFilterByNumericValues] = useState({
+    filterByNumericValues: [],
   });
   const [dataError, setDataError] = useState('');
 
@@ -29,9 +29,12 @@ function Provider({ children }) {
   }, [filterByName]);
 
   useEffect(() => {
-    const {
-      filterByNumericValues: [{ column, comparison, value }] } = filterByNumericValues;
     if (data.length !== 0) {
+      const { filterByNumericValues } = filterByValues;
+      const {
+        column,
+        comparison,
+        value } = filterByNumericValues[filterByNumericValues.length - 1];
       switch (comparison) {
       case 'maior que':
         return setFilteredData(data
@@ -46,15 +49,16 @@ function Provider({ children }) {
         return console.log('nai');
       }
     }
-  }, [filterByNumericValues]);
+  }, [filterByValues]);
 
   const handleInput = (value) => {
     setFilterByName({ filterByName: { name: value } });
   };
 
   const handleClick = ({ column, comparison, value }) => {
+    const { filterByNumericValues } = filterByValues;
     setFilterByNumericValues({
-      filterByNumericValues: [{ column, comparison, value }],
+      filterByNumericValues: [...filterByNumericValues, { column, comparison, value }],
     });
   };
 
@@ -62,6 +66,7 @@ function Provider({ children }) {
     data,
     dataError,
     filteredData,
+    filterByValues,
     handleInput,
     handleClick,
   };

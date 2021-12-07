@@ -1,14 +1,33 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import StarWarsContext from '../context/StarWarsContext';
+import Option from './Option';
 
 function Form() {
-  const { handleInput, handleClick } = useContext(StarWarsContext);
+  const { handleInput, handleClick, filterByValues } = useContext(StarWarsContext);
   const [comparisonFilter, setcomparisonFilter] = useState({
     column: 'population', comparison: 'maior que', value: 0,
   });
+  const [optionsValue, setOptionsValue] = useState([]);
   const handleSelect = (name, value) => {
     setcomparisonFilter({ ...comparisonFilter, [name]: value });
   };
+
+  const optionValidation = (value) => optionsValue.includes(value);
+
+  useEffect(() => {
+    const arrSelect = document.getElementById('select-filter');
+    setcomparisonFilter({
+      column: arrSelect.firstChild.value,
+      comparison: 'maior que',
+      value: 0 });
+  }, [optionsValue]);
+
+  useEffect(() => {
+    const { filterByNumericValues } = filterByValues;
+    filterByNumericValues.forEach(({ column }) => {
+      setOptionsValue([...optionsValue, column]);
+    });
+  }, [filterByValues]);
 
   return (
     <form>
@@ -29,11 +48,11 @@ function Form() {
           value={ comparisonFilter.column }
           onChange={ ({ target: { name, value } }) => handleSelect(name, value) }
         >
-          <option value="population">population</option>
-          <option value="orbital_period">orbital_period</option>
-          <option value="diameter">diameter</option>
-          <option value="rotation_period">rotation_period</option>
-          <option value="surface_water">surface_water</option>
+          { !optionValidation('population') && <Option value="population" />}
+          { !optionValidation('orbital_period') && <Option value="orbital_period" />}
+          { !optionValidation('diameter') && <Option value="diameter" />}
+          { !optionValidation('rotation_period') && <Option value="rotation_period" />}
+          { !optionValidation('surface_water') && <Option value="surface_water" />}
         </select>
       </label>
       <label htmlFor="select-comparison">
