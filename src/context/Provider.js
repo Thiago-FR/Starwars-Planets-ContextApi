@@ -7,15 +7,41 @@ function Provider({ children }) {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [filterByName, setFilterByName] = useState({ filterByName: { name: '' } });
+  const [orderFiltered, setOrderFiltered] = useState({ order:
+    { column: 'name', sort: 'ASC' } });
   const [filterByValues, setFilterByNumericValues] = useState({
     filterByNumericValues: [],
   });
   const [dataError, setDataError] = useState('');
 
+  const orderData = (dataOrder, column = 'name', sort = 'ASC') => {
+    console.log(sort); // só para comitar
+    const magicNumber = -1;
+    if (column === 'name') {
+      dataOrder.sort((a, b) => {
+        if (a[column] < b[column]) return magicNumber;
+        if (a[column] > b[column]) return 1;
+        return 0;
+      });
+      return setFilteredData(dataOrder);
+    }
+    dataOrder.sort((a, b) => {
+      if (Number(a[column]) < Number(b[column])) return magicNumber;
+      if (Number(a[column]) > Number(b[column])) return 1;
+      return 0;
+    });
+    setFilteredData(dataOrder);
+  };
+
+  useEffect(() => {
+    const { order: { column, sort } } = orderFiltered;
+    orderData(filteredData, column, sort);
+  }, [orderFiltered]);
+
   useEffect(() => {
     StarWarsContextApi().then(({ results }) => {
       setData(results);
-      setFilteredData(results);
+      orderData(results);
     }).catch((error) => {
       setDataError(error.detail);
     });
@@ -25,7 +51,7 @@ function Provider({ children }) {
     const { filterByName: { name } } = filterByName;
     const result = data.filter((namePlanet) => namePlanet.name
       .toLowerCase().includes(name.toLowerCase()));
-    setFilteredData(result);
+    orderData(result);
   }, [filterByName]);
 
   useEffect(() => {
@@ -37,13 +63,13 @@ function Provider({ children }) {
         value } = filterByNumericValues[filterByNumericValues.length - 1];
       switch (comparison) {
       case 'maior que':
-        return setFilteredData(filteredData
+        return orderData(filteredData
           .filter((title) => Number(title[column]) > Number(value)));
       case 'menor que':
-        return setFilteredData(filteredData
+        return orderData(filteredData
           .filter((title) => Number(title[column]) < Number(value)));
       case 'igual a':
-        return setFilteredData(filteredData
+        return orderData(filteredData
           .filter((title) => Number(title[column]) === Number(value)));
       default:
         return console.log('nai');
@@ -62,6 +88,11 @@ function Provider({ children }) {
     });
   };
 
+  const handleClickOrder = ({ column, sort }) => {
+    setOrderFiltered({ order:
+      { column, sort } });
+  };
+
   const handleClickReverse = (columnReverse, comparisonReverse, valueReverse) => {
     const { filterByNumericValues } = filterByValues;
     const resultFiltered = filterByNumericValues
@@ -71,15 +102,15 @@ function Provider({ children }) {
     });
     switch (comparisonReverse) {
     case 'maior que':
-      return setFilteredData([...filteredData, ...data
+      return orderData([...filteredData, ...data
         .filter((title) => Number(title[columnReverse]) <= Number(valueReverse)
         || title[columnReverse] === 'unknown')]);
     case 'menor que':
-      return setFilteredData([...filteredData, ...data
+      return orderData([...filteredData, ...data
         .filter((title) => Number(title[columnReverse]) >= Number(valueReverse)
         || title[columnReverse] === 'unknown')]);
     case 'igual a':
-      return setFilteredData([...filteredData, ...data
+      return orderData([...filteredData, ...data
         .filter((title) => Number(title[columnReverse]) === Number(valueReverse))]);
     default:
       return console.log('nai');
@@ -94,6 +125,7 @@ function Provider({ children }) {
     handleInput,
     handleClick,
     handleClickReverse,
+    handleClickOrder,
   };
 
   return (
