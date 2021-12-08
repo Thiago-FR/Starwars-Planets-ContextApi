@@ -7,7 +7,11 @@ function FiltersPage() {
   return (
     <>
       { filterByNumericValues.map(({ column, comparison, value }, index) => (
-        <div className="filters-pages" data-testid="filter" key={ index }>
+        <div
+          className="filters-pages"
+          data-testid="filter"
+          key={ `${column}-${comparison}-${value}-${index}` }
+        >
           <p>{column}</p>
           <p>{comparison}</p>
           <p>{value}</p>

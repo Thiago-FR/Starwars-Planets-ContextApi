@@ -23,7 +23,6 @@ function Table() {
           { data.length !== 0 && (
             filteredData.map((planet, indexPlanet) => (
               <tr key={ `${planet.name}-${indexPlanet}` }>
-                {console.log(filteredData)}
                 { Object.keys(planet).map((title, indexTitle) => (
                   title !== 'residents' && (
                     <td

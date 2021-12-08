@@ -14,20 +14,25 @@ function Provider({ children }) {
   });
   const [dataError, setDataError] = useState('');
 
+  const sortDetails = {
+    ASC: 1,
+    DESC: -1,
+  };
+
   const orderData = (dataOrder, column = 'name', sort = 'ASC') => {
-    console.log(sort); // só para comitar
-    const magicNumber = -1;
     if (column === 'name') {
       dataOrder.sort((a, b) => {
-        if (a[column] < b[column]) return magicNumber;
-        if (a[column] > b[column]) return 1;
+        if (a[column] < b[column]) return sortDetails[sort] * sortDetails.DESC;
+        if (a[column] > b[column]) return sortDetails[sort];
         return 0;
       });
       return setFilteredData(dataOrder);
     }
     dataOrder.sort((a, b) => {
-      if (Number(a[column]) < Number(b[column])) return magicNumber;
-      if (Number(a[column]) > Number(b[column])) return 1;
+      if (Number(a[column]) < Number(b[column])) {
+        return sortDetails[sort] * sortDetails.DESC;
+      }
+      if (Number(a[column]) > Number(b[column])) return sortDetails[sort];
       return 0;
     });
     setFilteredData(dataOrder);
