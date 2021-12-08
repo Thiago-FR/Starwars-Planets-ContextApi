@@ -39,11 +39,6 @@ function Provider({ children }) {
   };
 
   useEffect(() => {
-    const { order: { column, sort } } = orderFiltered;
-    orderData(filteredData, column, sort);
-  }, [orderFiltered]);
-
-  useEffect(() => {
     StarWarsContextApi().then(({ results }) => {
       setData(results);
       orderData(results);
@@ -96,6 +91,8 @@ function Provider({ children }) {
   const handleClickOrder = ({ column, sort }) => {
     setOrderFiltered({ order:
       { column, sort } });
+    console.log(orderFiltered);
+    orderData(filteredData, column, sort);
   };
 
   const handleClickReverse = (columnReverse, comparisonReverse, valueReverse) => {
