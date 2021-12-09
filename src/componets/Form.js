@@ -1,8 +1,9 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import StarWarsContext from '../context/StarWarsContext';
 import Option from './Option';
 
 function Form() {
+  const selectFistElement = useRef(null);
   const { handleInput, handleClick, filterByValues } = useContext(StarWarsContext);
   const [comparisonFilter, setcomparisonFilter] = useState({
     column: 'population', comparison: 'maior que', value: 0,
@@ -15,18 +16,15 @@ function Form() {
   const optionValidation = (value) => optionsValue.includes(value);
 
   useEffect(() => {
-    const arrSelect = document.getElementById('select-filter');
-    setcomparisonFilter({
-      column: arrSelect.firstChild ? arrSelect.firstChild.value : '',
-      comparison: 'maior que',
-      value: 0 });
-  }, [optionsValue]);
-
-  useEffect(() => {
     const { filterByNumericValues } = filterByValues;
     const resultFilterd = [];
     filterByNumericValues.forEach(({ column }) => resultFilterd.push(column));
     setOptionsValue(resultFilterd);
+    setcomparisonFilter({
+      column: selectFistElement.current.firstChild
+        ? selectFistElement.current.firstChild.value : '',
+      comparison: 'maior que',
+      value: 0 });
   }, [filterByValues]);
 
   return (
@@ -43,6 +41,7 @@ function Form() {
       <label htmlFor="select-filter">
         <select
           id="select-filter"
+          ref={ selectFistElement }
           name="column"
           data-testid="column-filter"
           value={ comparisonFilter.column }
