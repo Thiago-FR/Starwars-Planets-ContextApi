@@ -19,7 +19,8 @@ function Provider({ children }) {
     DESC: -1,
   };
 
-  const orderData = (dataOrder, column = 'name', sort = 'ASC') => {
+  const orderData = (dataOrder) => {
+    const { order: { column, sort } } = orderFiltered;
     if (column === 'name') {
       dataOrder.sort((a, b) => {
         if (a[column] < b[column]) return sortDetails[sort] * sortDetails.DESC;
@@ -38,23 +39,7 @@ function Provider({ children }) {
     setFilteredData(dataOrder);
   };
 
-  useEffect(() => {
-    StarWarsContextApi().then(({ results }) => {
-      setData(results);
-      orderData(results);
-    }).catch((error) => {
-      setDataError(error.detail);
-    });
-  }, []);
-
-  useEffect(() => {
-    const { filterByName: { name } } = filterByName;
-    const result = data.filter((namePlanet) => namePlanet.name
-      .toLowerCase().includes(name.toLowerCase()));
-    orderData(result);
-  }, [filterByName]);
-
-  useEffect(() => {
+  const setDataFilter = () => {
     const { filterByNumericValues } = filterByValues;
     if (data.length !== 0 && filterByNumericValues.length > 0) {
       const {
@@ -75,7 +60,24 @@ function Provider({ children }) {
         return console.log('nai');
       }
     }
-  }, [filterByValues]);
+  };
+
+  useEffect(() => {
+    const { filterByName: { name } } = filterByName;
+    if (data.length === 0) {
+      StarWarsContextApi().then(({ results }) => {
+        setData(results);
+        orderData(results);
+      }).catch((error) => {
+        setDataError(error.detail);
+      });
+    } else {
+      const newFilter = data.filter((namePlanet) => namePlanet.name
+        .toLowerCase().includes(name.toLowerCase()));
+      orderData(newFilter);
+      setDataFilter();
+    }
+  }, [filterByName, filterByValues]);
 
   const handleInput = (value) => {
     setFilterByName({ filterByName: { name: value } });
@@ -91,8 +93,7 @@ function Provider({ children }) {
   const handleClickOrder = ({ column, sort }) => {
     setOrderFiltered({ order:
       { column, sort } });
-    console.log(orderFiltered);
-    orderData(filteredData, column, sort);
+    orderData(filteredData);
   };
 
   const handleClickReverse = (columnReverse, comparisonReverse, valueReverse) => {
@@ -124,10 +125,12 @@ function Provider({ children }) {
     dataError,
     filteredData,
     filterByValues,
+    orderFiltered,
     handleInput,
     handleClick,
     handleClickReverse,
     handleClickOrder,
+    setOrderFiltered,
   };
 
   return (
